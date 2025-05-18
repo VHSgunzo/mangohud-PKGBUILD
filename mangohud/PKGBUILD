@@ -1,0 +1,72 @@
+# Maintainer: Campbell Jones <arch at serebit dot com>
+# Co-Maintainer: George Rawlinson <george@rawlinson.net.nz>
+# Contributor: Ranieri Althoff <ranisalt+aur at gmail dot com>
+# Contributor: Mark Wagie <mark dot wagie at proton dot me>
+pkgname=mangohud
+pkgver=0.8.1.59
+pkgrel=1
+pkgdesc="A Vulkan overlay layer for monitoring FPS, temperatures, CPU/GPU load and more."
+arch=('x86_64')
+url="https://github.com/flightlessmango/MangoHud"
+license=('MIT')
+makedepends=(
+    'appstream'
+    'cmocka'
+    'dbus'
+    'git'
+    'glslang'
+    'libxnvctrl'
+    'libxrandr'
+    'meson'
+    'nlohmann-json'
+    'python-mako'
+    'vulkan-headers'
+)
+depends=(
+    'gcc-libs'
+    'glew'
+    'glfw'
+    'glibc'
+    'hicolor-icon-theme'
+    'libglvnd'
+    'libx11'
+    'libxkbcommon'
+    'sh'
+    'wayland'
+)
+optdepends=(
+    'python'
+    'python-matplotlib'
+    'python-numpy'
+    'dbus: mangohudctl'
+    'libxnvctrl: NVIDIA GPU metrics on older GPUs'
+    'vulkan-icd-loader: Vulkan support'
+)
+replaces=("$pkgname-common" "$pkgname-common-wayland" "$pkgname-common-x11" "mangoapp" "$pkgname-x11" "$pkgname-wayland")
+conflicts=("$pkgname-common" "$pkgname-common-wayland" "$pkgname-common-x11" "mangoapp" "$pkgname-x11" "$pkgname-wayland" "${pkgname}-git")
+source=("$pkgname::git+$url")
+sha512sums=('SKIP')
+
+pkgver() {
+    cd "$srcdir/${pkgname%-git}"
+    git describe --long --tags|sed 's|^v||;s|-g.*||;s|-|.|g'
+}
+
+build() {
+    local meson_options=(
+        --wrap-mode=default
+        -Dwith_wayland=enabled
+        -Dmangoapp=true
+        -Dmangohudctl=true
+        $pkgname
+    )
+    arch-meson "${meson_options[@]}" build
+
+    meson compile -C build
+}
+
+package() {
+    meson install -C build --destdir "$pkgdir"
+
+    install -Dm 0664 "$pkgname/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

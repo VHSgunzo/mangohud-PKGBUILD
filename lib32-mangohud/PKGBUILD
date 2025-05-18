@@ -1,0 +1,71 @@
+# Maintainer: Campbell Jones <arch at serebit dot com>
+# Co-Maintainer: George Rawlinson <george@rawlinson.net.nz>
+# Contributor: Mark Wagie <mark dot wagie at proton dot me>
+# Contributor: Ranieri Althoff <ranisalt+aur at gmail dot com>
+pkgname=lib32-mangohud
+pkgver=0.8.1.59
+pkgrel=1
+pkgdesc="32-bit libraries for MangoHud and MangoApp"
+arch=('x86_64')
+url="https://github.com/flightlessmango/MangoHud"
+license=('MIT')
+makedepends=(
+    'appstream'
+    'git'
+    'glfw'
+    'glslang'
+    'lib32-cmocka'
+    'lib32-libglvnd'
+    'lib32-libxrandr'
+    'libxnvctrl'
+    'meson'
+    'nlohmann-json'
+    'python-mako'
+    'vulkan-headers'
+)
+depends=(
+    'lib32-gcc-libs'
+    'lib32-glibc'
+    'lib32-libxkbcommon'
+    'lib32-wayland'
+)
+optdepends=(
+    'lib32-vulkan-icd-loader: Vulkan support'
+)
+conflicts=('lib32-mangoapp' "${pkgname}-git")
+replaces=('lib32-mangoapp')
+source=("$pkgname::git+$url")
+sha512sums=('SKIP')
+
+pkgver() {
+    cd "$srcdir/${pkgname%-git}"
+    git describe --long --tags|sed 's|^v||;s|-g.*||;s|-|.|g'
+}
+
+build() {
+    local meson_options=(
+        --wrap-mode=default
+        -Dinclude_doc=false
+        -Dmangoapp=false
+        -Dmangohudctl=false
+        --libdir lib32
+        -Dwith_wayland=enabled
+        $pkgname
+    )
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+    export LLVM_CONFIG="/usr/bin/llvm-config32"
+
+    arch-meson "${meson_options[@]}" build
+
+    meson compile -C build
+}
+
+package() {
+    meson install -C build --tags runtime --destdir "$pkgdir"
+
+    install -Dm 0664 "$pkgname/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+    rm -rf "$pkgdir/usr/bin"
+}
