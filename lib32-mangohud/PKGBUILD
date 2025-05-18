@@ -3,7 +3,7 @@
 # Contributor: Mark Wagie <mark dot wagie at proton dot me>
 # Contributor: Ranieri Althoff <ranisalt+aur at gmail dot com>
 pkgname=lib32-mangohud
-pkgver=0.8.1.59
+pkgver=0.8.1.60
 pkgrel=1
 pkgdesc="32-bit libraries for MangoHud and MangoApp"
 arch=('x86_64')

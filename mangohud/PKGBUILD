@@ -3,7 +3,7 @@
 # Contributor: Ranieri Althoff <ranisalt+aur at gmail dot com>
 # Contributor: Mark Wagie <mark dot wagie at proton dot me>
 pkgname=mangohud
-pkgver=0.8.1.59
+pkgver=0.8.1.60
 pkgrel=1
 pkgdesc="A Vulkan overlay layer for monitoring FPS, temperatures, CPU/GPU load and more."
 arch=('x86_64')
